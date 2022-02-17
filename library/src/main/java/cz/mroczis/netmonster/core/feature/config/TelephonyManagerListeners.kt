@@ -1,5 +1,6 @@
 package cz.mroczis.netmonster.core.feature.config
 
+import android.os.Binder
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import androidx.annotation.AnyThread
@@ -60,6 +61,7 @@ internal fun <T> TelephonyManager.requestSingleUpdate(
 
 
         listener = localListener
+        Binder.clearCallingIdentity()
         listen(localListener, event)
     }
 
@@ -77,9 +79,11 @@ internal fun <T> TelephonyManager.requestSingleUpdate(
     listener?.let {
         // Same thread is required for unregistering
         Threads.phoneStateListener.post {
+            Binder.clearCallingIdentity()
             listen(it, PhoneStateListener.LISTEN_NONE)
         }
     }
+    Binder.clearCallingIdentity()
     listen(listener, PhoneStateListener.LISTEN_NONE)
 
     return result
